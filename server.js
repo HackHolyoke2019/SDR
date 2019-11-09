@@ -13,28 +13,30 @@ app.use(bodyParser.json());
 
 app.all("/addphonenumber", addPhoneNumber);
 function addPhoneNumber(req, res) {
-	MongoClient.connect(url, function(err, db) {
-		if (err) throw err;
-		var dbo = db.db("db");
-		var myobj = req.body;
-		myobj.keywords = myobj.keywords.split(',');
-		dbo.collection("users").update({"phone": myobj.phone}, myobj, {upsert: true})
-		})
+	MongoClient.connect(url)
+		.then(function(db) {
+			var dbo = db.db("db");
+			var myobj = req.body;
+			myobj.keywords = myobj.keywords.split(',');
+			dbo.collection("users").update({"phone": myobj.phone}, myobj, {upsert: true})
+			})
+			.catch(function (err) {})
 	console.log("1 document inserted/updated");
 	res.status(200).send("Success!");
 }
 
 app.all("/subscriptions", checkSubscriptions);
 function checkSubscriptions(req, res) {
-	MongoClient.connect(url, function(err, db) {
-		if (err) throw err;
-		var dbo = db.db("db");
-		var myobj = req.body.phone;
-		dbo.collection("users").findOne({"phone": myobj}, function(err, result) {
-			if(err) throw err;
-			console.log(result.keywords);
-			db.close();
-		})
+	MongoClient.connect(url) 
+		.then(function(db) {
+			var dbo = db.db("db");
+			var myobj = req.body.phone;
+			dbo.collection("users").findOne({"phone": myobj}, function(err, result) {
+				if(err) throw err;
+				console.log(result.keywords);
+				db.close();
+			})
+			.catch(function (err) {})
 	})
 	res.status(200).send("Success!");
 }
