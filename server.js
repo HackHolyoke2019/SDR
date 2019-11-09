@@ -9,8 +9,6 @@ app.use(bodyParser.urlencoded({ extended: false}));
 
 app.use(bodyParser.json());
 
-
-
 app.all("/addphonenumber", addPhoneNumber);
 function addPhoneNumber(req, res) {
 	MongoClient.connect(url)
@@ -27,18 +25,16 @@ function addPhoneNumber(req, res) {
 
 app.all("/subscriptions", checkSubscriptions);
 function checkSubscriptions(req, res) {
-	MongoClient.connect(url) 
-		.then(function(db) {
-			var dbo = db.db("db");
-			var myobj = req.body.phone;
-			dbo.collection("users").findOne({"phone": myobj}, function(err, result) {
-				if(err) throw err;
-				console.log(result.keywords);
-				db.close();
-			})
-			.catch(function (err) {})
+	MongoClient.connect(url, function(err, db) {
+		if (err) throw err;
+		var dbo = db.db("db");
+		var myobj = req.body.check;
+		dbo.collection("users").findOne({"phone": myobj}, function(err, result) {
+			if(err) throw err;
+			res.status(200).send(result);
+			db.close();
+		})
 	})
-	res.status(200).send("Success!");
 }
 
 app.listen(8000);
